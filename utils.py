@@ -1,11 +1,3 @@
-"""
-Shared utilities for DCT-based forensic video watermarking.
-
-This module contains the deterministic watermark derivation, block-DCT helpers,
-and the coefficient-pair embedding/extraction primitives used by embed.py and
-extract.py.
-"""
-
 from __future__ import annotations
 
 import hashlib
@@ -18,9 +10,6 @@ import numpy as np
 DEFAULT_SALT = "demo-secret-salt-change-me"
 DEFAULT_BITS = 256
 
-# Mid-frequency 8x8 DCT coefficient pairs. DC/very low frequencies are avoided
-# because they are visually sensitive; high frequencies are avoided because
-# compression tends to erase them.
 MID_FREQ_PAIRS = (
     ((2, 3), (3, 2)),
     ((2, 4), (4, 2)),
@@ -33,7 +22,6 @@ MID_FREQ_PAIRS = (
 
 @dataclass(frozen=True)
 class DetectionResult:
-    """Result returned by blind extraction."""
 
     recovered_bits: np.ndarray
     expected_bits: np.ndarray
@@ -53,12 +41,6 @@ def derive_watermark_bits(
     salt: str = DEFAULT_SALT,
     bit_length: int = DEFAULT_BITS,
 ) -> np.ndarray:
-    """
-    Derive a deterministic binary watermark from a public key and secret salt.
-
-    SHA-256 produces 256 bits. If more bits are requested, additional digest
-    blocks are generated with a counter prefix.
-    """
     if bit_length <= 0:
         raise ValueError("bit_length must be positive")
 
@@ -84,13 +66,7 @@ def block_plan(
     watermark_bits: np.ndarray,
     seed: int,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Build the deterministic spread-spectrum schedule.
 
-    Each 8x8 block carries one watermark bit. The bit index, coefficient pair,
-    and chip sign are pseudo-random but fully reproducible from the public key
-    and salt. Repeating bits over many blocks/frames gives robust majority votes.
-    """
     if num_blocks <= 0:
         raise ValueError("num_blocks must be positive")
     if watermark_bits.size == 0:
@@ -121,12 +97,7 @@ def block_count(frame_shape: tuple[int, int]) -> int:
 
 
 def split_luma(frame: np.ndarray) -> tuple[np.ndarray, np.ndarray | None, bool]:
-    """
-    Extract a luma/grayscale channel for watermarking.
-
-    Color videos are converted to YCrCb and only Y is modified so the output
-    remains visually close to the input. Grayscale videos are processed directly.
-    """
+  
     if frame.ndim == 2:
         return frame.astype(np.float32), None, False
 
@@ -154,12 +125,7 @@ def embed_luma_channel(
     seed: int,
     strength: float,
 ) -> np.ndarray:
-    """
-    Embed watermark bits into the luma channel with 8x8 block DCT.
-
-    A bit is encoded by forcing the signed difference between a mid-frequency
-    coefficient pair to agree with the target bit and pseudo-random chip sign.
-    """
+ 
     watermarked = luma.copy()
     num_blocks = block_count(luma.shape)
     bit_indices, pair_indices, chips = block_plan(num_blocks, watermark_bits, seed)
@@ -176,8 +142,6 @@ def embed_luma_channel(
         coeff_b = float(dct_block[b_y, b_x])
         diff = coeff_a - coeff_b
 
-        # Adjust the pair just enough to make the desired signed difference
-        # visible to the detector while keeping pixel changes small.
         desired_diff = target * strength
         if target * diff < strength:
             adjustment = (desired_diff - diff) / 2.0
@@ -195,13 +159,7 @@ def extract_votes_from_luma(
     expected_bits: np.ndarray,
     seed: int,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Blindly extract correlation votes from one luma channel.
 
-    For each block, the detector checks whether the same deterministic
-    coefficient-pair difference is positive or negative after de-spreading by
-    the chip sign.
-    """
     num_blocks = block_count(luma.shape)
     bit_indices, pair_indices, chips = block_plan(num_blocks, expected_bits, seed)
 
@@ -228,7 +186,7 @@ def load_luma_for_detection(frame: np.ndarray) -> np.ndarray:
 
 
 def fourcc_for_path(path: str) -> int:
-    """Pick a broadly compatible codec from the output extension."""
+   
     lower = path.lower()
     if lower.endswith(".avi"):
         return cv2.VideoWriter_fourcc(*"XVID")
