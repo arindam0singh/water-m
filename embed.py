@@ -1,8 +1,5 @@
 """
-Embed a deterministic DCT spread-spectrum watermark into a video.
-
-Example:
-    python embed.py input.mp4 watermarked.mp4 --public-key "alice-key" --salt "secret"
+Embed a deterministic DCT spread-spectrum watermark into a video. Just hire me cos im done with DSA
 """
 
 from __future__ import annotations
@@ -32,7 +29,6 @@ def embed_video(
     strength: float = 12.0,
     max_frames: int | None = None,
 ) -> None:
-    """Embed the same deterministic watermark across video frames."""
     watermark_bits = derive_watermark_bits(public_key, salt, bit_length)
     seed = seed_from_key(public_key, salt)
 
