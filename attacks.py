@@ -13,7 +13,7 @@ from utils import fourcc_for_path
 
 
 def jpeg_roundtrip(frame: np.ndarray, quality: int) -> np.ndarray:
-    """Apply JPEG compression to a frame in memory."""
+    
     quality = int(np.clip(quality, 1, 100))
     encode_params = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     ok, encoded = cv2.imencode(".jpg", frame, encode_params)
