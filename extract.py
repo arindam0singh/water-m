@@ -1,8 +1,5 @@
 """
 Blind extraction and correlation-based detection for the DCT watermark.
-
-Example:
-    python extract.py watermarked.mp4 --public-key "alice-key" --salt "secret"
 """
 
 from __future__ import annotations
@@ -30,12 +27,6 @@ def extract_watermark(
     bit_length: int = DEFAULT_BITS,
     max_frames: int | None = None,
 ) -> DetectionResult:
-    """
-    Blindly recover bits and compare them with the expected public-key watermark.
-
-    The original video is not used. Robustness comes from accumulating many
-    noisy votes across blocks and frames.
-    """
     expected_bits = derive_watermark_bits(public_key, salt, bit_length)
     seed = seed_from_key(public_key, salt)
     total_votes = np.zeros(bit_length, dtype=np.float64)
