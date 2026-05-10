@@ -1,8 +1,5 @@
 """
-Simulate screen-recording style distortions against a video.
-
-Example:
-    python attacks.py watermarked.mp4 attacked.mp4 --jpeg-quality 55 --noise-std 3
+Simulate screen-recording style distortions against a video. Ill do anything but DSA!!!!!!!!!!
 """
 
 from __future__ import annotations
@@ -34,12 +31,7 @@ def distort_frame(
     brightness: float = 1.05,
     noise_std: float = 2.0,
 ) -> np.ndarray:
-    """
-    Apply blur, compression, resize, brightness change, and additive noise.
-
-    The resize step shrinks and expands back to the original dimensions, which
-    roughly mimics capture/scaling artifacts in a screen recording pipeline.
-    """
+    
     attacked = frame.copy()
     height, width = attacked.shape[:2]
 
@@ -77,7 +69,7 @@ def attack_video(
     noise_std: float = 2.0,
     max_frames: int | None = None,
 ) -> None:
-    """Create an attacked copy of a video using simple screen-recording distortions."""
+    """Create an attacked copy of a video."""
     cap = cv2.VideoCapture(input_path)
     if not cap.isOpened():
         raise FileNotFoundError(f"Could not open input video: {input_path}")
